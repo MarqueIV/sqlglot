@@ -5569,6 +5569,14 @@ class ArrayFilter(Func):
     _sql_names = ["FILTER", "ARRAY_FILTER"]
 
 
+class ArrayFirst(Func):
+    pass
+
+
+class ArrayLast(Func):
+    pass
+
+
 class ArrayToString(Func):
     arg_types = {"this": True, "expression": True, "null": False}
     _sql_names = ["ARRAY_TO_STRING", "ARRAY_JOIN"]
@@ -5850,8 +5858,6 @@ class DateTrunc(Func):
                 unit_name = TimeUnit.UNABBREVIATED_UNIT_NAME[unit_name]
 
             args["unit"] = Literal.string(unit_name)
-        elif isinstance(unit, Week):
-            unit.set("this", Literal.string(unit.this.name.upper()))
 
         super().__init__(**args)
 
@@ -6673,6 +6679,11 @@ class Repeat(Func):
     arg_types = {"this": True, "times": True}
 
 
+# Some dialects like Snowflake support two argument replace
+class Replace(Func):
+    arg_types = {"this": True, "expression": True, "replacement": False}
+
+
 # https://learn.microsoft.com/en-us/sql/t-sql/functions/round-transact-sql?view=sql-server-ver16
 # tsql third argument function == trunctaion if not 0
 class Round(Func):
@@ -6718,6 +6729,17 @@ class SplitPart(Func):
 class Substring(Func):
     _sql_names = ["SUBSTRING", "SUBSTR"]
     arg_types = {"this": True, "start": False, "length": False}
+
+
+class SubstringIndex(Func):
+    """
+    SUBSTRING_INDEX(str, delim, count)
+
+    *count* > 0  → left slice before the *count*-th delimiter
+    *count* < 0  → right slice after the |count|-th delimiter
+    """
+
+    arg_types = {"this": True, "delimiter": True, "count": True}
 
 
 class StandardHash(Func):

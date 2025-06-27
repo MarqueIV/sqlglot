@@ -56,6 +56,7 @@ class TestBigQuery(Validator):
         select_with_quoted_udf = self.validate_identity("SELECT `p.d.UdF`(data) FROM `p.d.t`")
         self.assertEqual(select_with_quoted_udf.selects[0].name, "p.d.UdF")
 
+        self.validate_identity("DATE_TRUNC(x, @foo)").unit.assert_is(exp.Parameter)
         self.validate_identity("ARRAY_CONCAT_AGG(x ORDER BY ARRAY_LENGTH(x) LIMIT 2)")
         self.validate_identity("ARRAY_CONCAT_AGG(x LIMIT 2)")
         self.validate_identity("ARRAY_CONCAT_AGG(x ORDER BY ARRAY_LENGTH(x))")
@@ -1743,6 +1744,9 @@ WHERE
                 "redshift": 'SELECT * FROM t1 CROSS JOIN "t1"."t2"."t3"."t4" AS "col"',
             },
         )
+
+        self.validate_identity("ARRAY_FIRST(['a', 'b'])")
+        self.validate_identity("ARRAY_LAST(['a', 'b'])")
 
     def test_errors(self):
         with self.assertRaises(ParseError):
